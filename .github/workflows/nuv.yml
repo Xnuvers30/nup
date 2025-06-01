@@ -1,0 +1,21 @@
+name: Windows-RDP
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 360  # Max 6 jam (360 menit)
+
+    steps:
+    - name: Aktifkan RDP
+      run: |
+        net user runneradmin P@ssw0rd123
+        netsh advfirewall firewall add rule name="Open RDP" dir=in action=allow protocol=TCP localport=3389
+        Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        echo "==============================="
+        echo "RDP Aktif!"
+        echo "IP Address: $(hostname -I)"
+        echo "Username: runneradmin"
+        echo "Password: P@ssw0rd123"
+        echo "==============================="
