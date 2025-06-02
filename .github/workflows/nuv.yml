@@ -15,7 +15,7 @@ jobs:
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         echo "==============================="
         echo "RDP Aktif!"
-        echo "IP Address: $(hostname -I)"
+        echo "IP Address: $(hostname)"
         echo "Username: runneradmin"
         echo "Password: P@ssw0rd123"
         echo "==============================="
