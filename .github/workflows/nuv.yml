@@ -4,33 +4,34 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 360  # 6 jam
 
     steps:
     - name: Aktifkan RDP
       run: |
         net user runneradmin P@ssw0rd123
-        netsh advfirewall firewall add rule name="Open RDP" dir=in action=allow protocol=TCP localport=3389
-        Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -name "fDenyTSConnections" -Value 0
+        Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        netsh advfirewall firewall add rule name="Open RDP" dir=in action=allow protocol=TCP localport=3389
 
     - name: Download ngrok
       run: |
-        Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-        Expand-Archive ngrok.zip -DestinationPath $env:USERPROFILE
+        Invoke-WebRequest -Uri "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip" -OutFile "ngrok.zip"
+        Expand-Archive ./ngrok.zip -DestinationPath $env:USERPROFILE\ngrok
 
     - name: Jalankan ngrok tunnel ke RDP
       run: |
-        & "$env:USERPROFILE\ngrok\ngrok.exe" authtoken 2k3MpOX0UKIdR51plCZ7JKJB3E4_6F6EAoptAQoQSvyQHxCKm
-        Start-Process "$env:USERPROFILE\ngrok\ngrok.exe" "tcp 3389"
-        Start-Sleep -Seconds 15
-        Invoke-WebRequest http://127.0.0.1:4040/api/tunnels > tunnels.json
-        Get-Content tunnels.json
+        & "$env:USERPROFILE\ngrok\ngrok.exe" authtoken 2xvgf2aYac2cZeInyJghlvaWVJZ_2QU4GLN9hxW1yrvnBVZq5
+        Start-Process -NoNewWindow -FilePath "$env:USERPROFILE\ngrok\ngrok.exe" -ArgumentList "tcp 3389"
+        Start-Sleep -Seconds 10
+        Invoke-WebRequest -Uri "http://127.0.0.1:4040/api/tunnels" | Select-Object -ExpandProperty Content | Out-File tunnel.txt
+        Get-Content tunnel.txt
 
     - name: Info login
       run: |
-        echo "==============================="
-        echo "Username: runneradmin"
-        echo "Password: P@ssw0rd123"
-        echo "Gunakan alamat TCP dari ngrok (lihat log di atas)"
-        echo "==============================="
+        echo ===============================
+        echo RDP Aktif!
+        echo Username: runneradmin
+        echo Password: P@ssw0rd123
+        echo Cek URL ngrok TCP di atas!
+        echo ===============================
