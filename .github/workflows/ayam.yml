@@ -1,0 +1,37 @@
+name: Windows-RDP
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 360  # 6 jam
+
+    steps:
+    - name: Aktifkan RDP
+      run: |
+        net user runneradmin P@ssw0rd123
+        Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        netsh advfirewall firewall add rule name="Open RDP" dir=in action=allow protocol=TCP localport=3389
+
+    - name: Download ngrok
+      run: |
+        Invoke-WebRequest -Uri "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip" -OutFile "ngrok.zip"
+        Expand-Archive ./ngrok.zip -DestinationPath $env:USERPROFILE\ngrok
+
+    - name: Jalankan ngrok tunnel ke RDP
+      run: |
+        & "$env:USERPROFILE\ngrok\ngrok.exe" authtoken 1ydev3FnsIwkZYAx9tLYgfzAWBW_4Hebchk3wm8Hq1qHZEq1Q
+        Start-Process -NoNewWindow -FilePath "$env:USERPROFILE\ngrok\ngrok.exe" -ArgumentList "tcp 3389"
+        Start-Sleep -Seconds 10
+        Invoke-WebRequest -Uri "http://127.0.0.1:4040/api/tunnels" | Select-Object -ExpandProperty Content | Out-File tunnel.txt
+        Get-Content tunnel.txt
+
+    - name: Info login
+      run: |
+        echo ===============================
+        echo RDP Aktif!
+        echo Username: runneradmin
+        echo Password: P@ssw0rd123
+        echo Cek URL ngrok TCP di atas!
+        echo ===============================
