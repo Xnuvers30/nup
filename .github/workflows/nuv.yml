@@ -21,7 +21,7 @@ jobs:
 
     - name: Jalankan ngrok tunnel ke RDP
       run: |
-        & "$env:USERPROFILE\ngrok\ngrok.exe" authtoken 2xvgf2aYac2cZeInyJghlvaWVJZ_2QU4GLN9hxW1yrvnBVZq5
+        & "$env:USERPROFILE\ngrok\ngrok.exe" authtoken 1ydev3FnsIwkZYAx9tLYgfzAWBW_4Hebchk3wm8Hq1qHZEq1Q
         Start-Process -NoNewWindow -FilePath "$env:USERPROFILE\ngrok\ngrok.exe" -ArgumentList "tcp 3389"
         Start-Sleep -Seconds 10
         Invoke-WebRequest -Uri "http://127.0.0.1:4040/api/tunnels" | Select-Object -ExpandProperty Content | Out-File tunnel.txt
